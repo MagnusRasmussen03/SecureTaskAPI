@@ -1,7 +1,10 @@
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args); // ← Forbereder alt
 
 // Add services to the container.
-builder.Services.AddOpenApi();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql("Host=localhost;Port=5433;Database=securetaskdb;Username=admin;Password=password123"));
 
 var app = builder.Build();  // ← Bygger selve API'en
 
@@ -11,51 +14,53 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-var tasks = new List <TaskItem>
-{
-    new TaskItem { Id =1, Title = "Lær C#", IsCompleted = false },
-    new TaskItem { Id =2, Title = "Byg en REST API", IsCompleted = false },
-    new TaskItem { Id =3, Title = "Lær Docker", IsCompleted = false }
-};
+// Hent alle opgaver fra databasen
+app.MapGet("/tasks", async (AppDbContext db) =>
+    await db.Tasks.ToListAsync());
 
-// Hent alle opgaver
-app.MapGet("/tasks", () => tasks);
-
-// Hent én opgave med et bestemt id
-app.MapGet("/tasks/{id}", (int id) =>
+// Hent én opgave
+app.MapGet("/tasks/{id}", async (int id, AppDbContext db) =>
 {
-    var task = tasks.FirstOrDefault(t => t.Id == id);
+    var task = await db.Tasks.FindAsync(id);
     return task is null ? Results.NotFound() : Results.Ok(task);
 });
 
 // Opret en ny opgave
-app.MapPost("/tasks", (TaskItem newTask) =>
+app.MapPost("/tasks", async (TaskItem newTask, AppDbContext db) =>
 {
-    newTask.Id = tasks.Count + 1;
-    tasks.Add(newTask);
+    //SaveChangesAsync()  →  "Jeg KAN køre i baggrunden"
+    //await               →  "Kør i baggrunden og vent på svaret"
+
+
+    //db.SaveChanges()        // Blokerer - den gamle måde
+    //db.SaveChangesAsync()   // Blokerer ikke - den moderne måde
+    //Dette er to forskellige metoder.
+    db.Tasks.Add(newTask);
+    await db.SaveChangesAsync();
     return Results.Created($"/tasks/{newTask.Id}", newTask);
 });
 
 // Opdater en opgave
-app.MapPut("/tasks/{id}", (int id, TaskItem updatedTask) =>
+app.MapPut("/tasks/{id}", async (int id, TaskItem updatedTask, AppDbContext db) =>
 {
-    var task = tasks.FirstOrDefault(t => t.Id == id);
+    var task = await db.Tasks.FindAsync(id);
     if (task is null) return Results.NotFound();
-    
+
     task.Title = updatedTask.Title;
     task.IsCompleted = updatedTask.IsCompleted;
+    await db.SaveChangesAsync();
     return Results.Ok(task);
 });
 
 // Slet en opgave
-app.MapDelete("/tasks/{id}", (int id) =>
+app.MapDelete("/tasks/{id}", async (int id, AppDbContext db) =>
 {
-    var task = tasks.FirstOrDefault(t => t.Id == id);
+    var task = await db.Tasks.FindAsync(id);
     if (task is null) return Results.NotFound();
-    
-    tasks.Remove(task);
+
+    db.Tasks.Remove(task);
+    await db.SaveChangesAsync();
     return Results.NoContent();
 });
-
 
 app.Run();
