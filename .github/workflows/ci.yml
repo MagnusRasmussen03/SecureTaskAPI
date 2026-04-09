@@ -1,0 +1,26 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Hent koden
+        uses: actions/checkout@v4
+
+      - name: Installer .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Gendan pakker
+        run: dotnet restore SecureTaskAPI/SecureTaskAPI.csproj
+
+      - name: Byg projektet
+        run: dotnet build SecureTaskAPI/SecureTaskAPI.csproj --no-restore
