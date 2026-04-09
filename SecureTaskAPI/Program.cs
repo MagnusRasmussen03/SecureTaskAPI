@@ -2,9 +2,23 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args); // ← Forbereder alt
 
+var host = builder.Configuration["POSTGRES_HOST"] 
+    ?? throw new InvalidOperationException("POSTGRES_HOST er ikke sat!");
+var port = builder.Configuration["POSTGRES_PORT"] 
+    ?? throw new InvalidOperationException("POSTGRES_PORT er ikke sat!");
+var db = builder.Configuration["POSTGRES_DB"] 
+    ?? throw new InvalidOperationException("POSTGRES_DB er ikke sat!");
+var user = builder.Configuration["POSTGRES_USER"] 
+    ?? throw new InvalidOperationException("POSTGRES_USER er ikke sat!");
+var password = builder.Configuration["POSTGRES_PASSWORD"] 
+    ?? throw new InvalidOperationException("POSTGRES_PASSWORD er ikke sat!");
+
+
+var connectionString = $"Host={host};Port={port};Database={db};Username={user};Password={password}";
+
 // Add services to the container.
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql("Host=localhost;Port=5433;Database=securetaskdb;Username=admin;Password=password123"));
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();  // ← Bygger selve API'en
 
