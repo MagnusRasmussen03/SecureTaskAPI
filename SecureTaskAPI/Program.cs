@@ -22,6 +22,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 var app = builder.Build();  // ← Bygger selve API'en
 
+// Kør migrations automatisk ved opstart
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    context.Database.Migrate();
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
