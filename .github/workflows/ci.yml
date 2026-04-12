@@ -20,7 +20,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Gendan pakker
-        run: dotnet restore SecureTaskAPI/SecureTaskAPI.csproj
+        run: dotnet restore
 
       - name: Byg projektet
-        run: dotnet build SecureTaskAPI/SecureTaskAPI.csproj --no-restore
+        run: dotnet build --no-restore
+
+      - name: Kør tests
+        run: dotnet test --no-build --verbosity normal
