@@ -1,4 +1,11 @@
 # SecureTaskAPI 🛡️
+[![CI Pipeline](https://github.com/MagnusRasmussen03/SecureTaskAPI/actions/workflows/ci.yml/badge.svg)](https://github.com/MagnusRasmussen03/SecureTaskAPI/actions/workflows/ci.yml)
+![.NET](https://img.shields.io/badge/.NET-10.0-purple)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
+![Docker](https://img.shields.io/badge/Docker-ready-2496ED)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+# SecureTaskAPI 🛡️
 
 A task management REST API built with C# and .NET 10, PostgreSQL, Docker, and GitHub Actions CI/CD pipeline. Built as a hands-on DevSecOps learning project.
 
