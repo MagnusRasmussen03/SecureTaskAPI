@@ -218,23 +218,27 @@ app.MapPost("/login", async (RegisterRequest request, AppDbContext dbContext) =>
 // Uden token får du 401 Unauthorized
 // ─────────────────────────────────────────────
 
-// Hent alle opgaver fra databasen
-app.MapGet("/tasks", async (AppDbContext dbContext) =>
-    await dbContext.Tasks.ToListAsync())
-    .RequireAuthorization(); // ← Kræver JWT token!
-
-// Hent én specifik opgave via id
-// Returnerer 404 hvis opgaven ikke findes
-app.MapGet("/tasks/{id}", async (int id, AppDbContext dbContext) =>
+// Hent alle opgaver - kun den loggede brugers opgaver!
+app.MapGet("/tasks", async (AppDbContext dbContext, ClaimsPrincipal currentUser) =>
 {
-    var task = await dbContext.Tasks.FindAsync(id);
-    return task is null ? Results.NotFound() : Results.Ok(task);
+    // Hent brugerens ID fra JWT tokenet
+    var userId = int.Parse(currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    
+    // Returner KUN opgaver der tilhører denne bruger
+    return await dbContext.Tasks
+        .Where(t => t.UserId == userId)
+        .ToListAsync();
 }).RequireAuthorization();
 
-// Opret en ny opgave
-// Returnerer 201 Created med den nye opgave
-app.MapPost("/tasks", async (TaskItem newTask, AppDbContext dbContext) =>
+// Opret en ny opgave - tilknyt til den loggede bruger
+app.MapPost("/tasks", async (TaskItem newTask, AppDbContext dbContext, ClaimsPrincipal currentUser) =>
 {
+    // Hent brugerens ID fra JWT tokenet
+    var userId = int.Parse(currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+    
+    // Sæt UserId på opgaven så den tilhører den loggede bruger
+    newTask.UserId = userId;
+    
     dbContext.Tasks.Add(newTask);
     await dbContext.SaveChangesAsync();
     return Results.Created($"/tasks/{newTask.Id}", newTask);
