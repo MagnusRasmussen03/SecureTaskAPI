@@ -33,7 +33,7 @@ A task management REST API built with C# and .NET 10, PostgreSQL, Docker, and Gi
 
 2. Start the database
 ```bash
-   docker-compose up
+   docker-compose up -d db
 ```
 
 3. Apply database migrations
