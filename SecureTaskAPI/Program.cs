@@ -260,11 +260,27 @@ app.MapPut("/tasks/{id}", async (int id, TaskItem updatedTask, AppDbContext dbCo
 // Slet en opgave
 // Returnerer 204 No Content hvis det lykkedes
 // Returnerer 404 hvis opgaven ikke findes
-app.MapDelete("/tasks/{id}", async (int id, AppDbContext dbContext) =>
+app.MapDelete("/tasks/{id}", async (int id, AppDbContext dbContext, ClaimsPrincipal currentUser) =>
 {
+    // 1. Find ud af hvem der spørger (fra JWT)
+    var currentUserId = int.Parse(currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+    // 2. Find opgaven i databasen
     var task = await dbContext.Tasks.FindAsync(id);
+    
+    // 3. Findes opgaven overhovedet?
     if (task is null) return Results.NotFound();
 
+    // 4. THE FIX: Tilhører opgaven faktisk den bruger, der er logget ind?
+    if (task.UserId != currentUserId) 
+    {
+        // Sikkerheds-ninja trick: Vi returnerer IKKE '403 Forbidden'. 
+        // Vi returnerer '404 NotFound'. Hvorfor? For at hackeren ikke engang 
+        // kan bruge API'et til at scanne, om 'opgave nr 5' overhovedet eksisterer i systemet!
+        return Results.NotFound(); 
+    }
+
+    // 5. Nu er det sikkert at slette!
     dbContext.Tasks.Remove(task);
     await dbContext.SaveChangesAsync();
     return Results.NoContent();
