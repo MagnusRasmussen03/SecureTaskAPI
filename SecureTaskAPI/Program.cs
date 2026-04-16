@@ -246,10 +246,15 @@ app.MapPost("/tasks", async (TaskItem newTask, AppDbContext dbContext, ClaimsPri
 
 // Opdater en eksisterende opgave
 // Returnerer 404 hvis opgaven ikke findes
-app.MapPut("/tasks/{id}", async (int id, TaskItem updatedTask, AppDbContext dbContext) =>
+app.MapPut("/tasks/{id}", async (int id, TaskItem updatedTask, AppDbContext dbContext, ClaimsPrincipal currentUser) =>
 {
+    var currentUserId = int.Parse(currentUser.FindFirst(ClaimTypes.NameIdentifier)!.Value);
     var task = await dbContext.Tasks.FindAsync(id);
     if (task is null) return Results.NotFound();
+    if (task.UserId != currentUserId) 
+    {
+        return Results.NotFound();  
+    }
 
     task.Title = updatedTask.Title;
     task.IsCompleted = updatedTask.IsCompleted;
