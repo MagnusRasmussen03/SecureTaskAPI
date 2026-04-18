@@ -105,6 +105,7 @@ This project uses GitHub Actions for continuous integration. The pipeline automa
 - ✅ Reports success or failure
 
 ## Project Structure
+```
 SecureTaskAPI/
 ├── .github/
 │   └── workflows/
@@ -117,6 +118,7 @@ SecureTaskAPI/
 │   └── appsettings.json    # Configuration
 ├── docker-compose.yml      # Database container
 └── README.md
+```
 
 ## What I Learned
 
