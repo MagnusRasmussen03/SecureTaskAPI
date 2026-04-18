@@ -78,6 +78,23 @@ POST /tasks
     "isCompleted": false
 }
 ```
+## Database Diagram
+
+```mermaid
+erDiagram
+    Users {
+        int Id PK
+        string Username
+        string PasswordHash
+    }
+    Tasks {
+        int Id PK
+        string Title
+        bool IsCompleted
+        int UserId FK
+    }
+    Users ||--o{ Tasks : "har mange"
+```
 
 ## CI/CD Pipeline
 
