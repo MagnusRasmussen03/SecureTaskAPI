@@ -75,54 +75,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
-app.UseAuthorization();
 
 // Map controllers automatisk
 app.MapControllers();
 
-// Auth endpoints forbliver i Program.cs
-app.MapPost("/register", async (RegisterRequest request, AppDbContext dbContext) =>
-{
-    if (await dbContext.Users.AnyAsync(u => u.Username == request.Username))
-        return Results.BadRequest("Brugernavnet er allerede taget!");
-
-    var newUser = new User
-    {
-        Username = request.Username,
-        PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
-    };
-
-    dbContext.Users.Add(newUser);
-    await dbContext.SaveChangesAsync();
-    return Results.Ok("Bruger oprettet!");
-});
-
-app.MapPost("/login", async (RegisterRequest request, AppDbContext dbContext) =>
-{
-    var foundUser = await dbContext.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
-
-    if (foundUser is null || !BCrypt.Net.BCrypt.Verify(request.Password, foundUser.PasswordHash))
-        return Results.Unauthorized();
-
-    var claims = new[]
-    {
-        new Claim(ClaimTypes.Name, foundUser.Username),
-        new Claim(ClaimTypes.NameIdentifier, foundUser.Id.ToString())
-    };
-
-    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
-    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-    var token = new JwtSecurityToken(
-        issuer: jwtIssuer,
-        audience: jwtAudience,
-        claims: claims,
-        expires: DateTime.UtcNow.AddHours(1),
-        signingCredentials: creds
-    );
-
-    return Results.Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
-});
-
 app.Run();
-
-record RegisterRequest(string Username, string Password);
