@@ -93,7 +93,7 @@ erDiagram
         bool IsCompleted
         int UserId FK
     }
-    Users ||--o{ Tasks : "har mange"
+    Users ||--o{ Tasks : "har mange"}
 ```
 
 ## CI/CD Pipeline
