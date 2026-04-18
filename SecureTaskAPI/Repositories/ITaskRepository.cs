@@ -8,4 +8,12 @@ public interface ITaskRepository
     Task<TaskItem> CreateAsync(TaskItem task);
     Task<TaskItem?> UpdateAsync(int id, TaskItem updatedTask, int userId);
     Task<bool> DeleteAsync(int id, int userId);
+    // Hent statistik for en brugers opgaver
+    Task<TaskStatistics> GetStatisticsAsync(int userId);
+    
+    // Hent ufærdige opgaver sorteret efter titel
+    Task<List<TaskItem>> GetPendingTasksAsync(int userId);
+    
+    // Hent alle brugere med antal opgaver (JOIN + COUNT)
+    Task<List<UserTaskCount>> GetUserTaskCountsAsync();
 }

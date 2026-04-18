@@ -9,4 +9,7 @@ public interface ITaskService
     Task<TaskItem> CreateTaskAsync(string title, int userId);
     Task<TaskItem?> UpdateTaskAsync(int id, TaskItem updatedTask, int userId);
     Task<bool> DeleteTaskAsync(int id, int userId);
+    Task<TaskStatistics> GetStatisticsAsync(int userId);
+    Task<List<TaskItem>> GetPendingTasksAsync(int userId);
+    Task<List<UserTaskCount>> GetUserTaskCountsAsync();
 }

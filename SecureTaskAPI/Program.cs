@@ -75,6 +75,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
+app.UseAuthorization();
 
 // Map controllers automatisk
 app.MapControllers();

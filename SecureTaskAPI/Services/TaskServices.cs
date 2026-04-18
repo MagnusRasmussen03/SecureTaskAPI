@@ -48,4 +48,19 @@ public class TaskService : ITaskService
     {
         return await _taskRepository.DeleteAsync(id, userId);
     }
+
+    public async Task<TaskStatistics> GetStatisticsAsync(int userId)
+    {
+        return await _taskRepository.GetStatisticsAsync(userId);
+    }
+
+    public async Task<List<TaskItem>> GetPendingTasksAsync(int userId)
+    {
+        return await _taskRepository.GetPendingTasksAsync(userId);
+    }
+
+    public async Task<List<UserTaskCount>> GetUserTaskCountsAsync()
+    {
+        return await _taskRepository.GetUserTaskCountsAsync();
+    }
 }

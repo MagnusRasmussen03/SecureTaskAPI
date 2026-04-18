@@ -69,4 +69,3 @@ public class AuthController : ControllerBase
         return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
     }
 }
-    public record RegisterRequest(string Username, string Password);

@@ -64,6 +64,22 @@ public class TaskController : ControllerBase
         var deleted = await _taskService.DeleteTaskAsync(id, GetUserId());
         return deleted ? NoContent() : NotFound();
     }
+
+    // GET /tasks/statistics
+    [HttpGet("statistics")]
+    public async Task<IActionResult> GetStatistics()
+    {
+        var stats = await _taskService.GetStatisticsAsync(GetUserId());
+        return Ok(stats);
+    }
+
+    // GET /tasks/pending
+    [HttpGet("pending")]
+    public async Task<IActionResult> GetPending()
+    {
+        var tasks = await _taskService.GetPendingTasksAsync(GetUserId());
+        return Ok(tasks);
+    }
 }
 
 // Request model til oprettelse af opgave

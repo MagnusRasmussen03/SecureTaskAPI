@@ -60,4 +60,41 @@ public class TaskRepository : ITaskRepository
         await _db.SaveChangesAsync();
         return true;
     }
+
+    // Hent statistik for en brugers opgaver (aggregering)
+    public async Task<TaskStatistics> GetStatisticsAsync(int userId)
+    {
+        var tasks = await _db.Tasks
+            .Where(t => t.UserId == userId)
+            .ToListAsync();
+
+        return new TaskStatistics
+        {
+            TotalTasks = tasks.Count,
+            CompletedTasks = tasks.Count(t => t.IsCompleted),
+            PendingTasks = tasks.Count(t => !t.IsCompleted)
+        };
+    }
+
+    // Hent ufærdige opgaver sorteret efter titel (filtering + sorting)
+    public async Task<List<TaskItem>> GetPendingTasksAsync(int userId)
+    {
+        return await _db.Tasks
+            .Where(t => t.UserId == userId && !t.IsCompleted)
+            .OrderBy(t => t.Title)
+            .ToListAsync();
+    }
+
+    // Hent alle brugere med antal opgaver (JOIN + COUNT)
+    public async Task<List<UserTaskCount>> GetUserTaskCountsAsync()
+    {
+        return await _db.Users
+            .Select(u => new UserTaskCount
+            {
+                Username = u.Username,
+                TaskCount = u.Tasks.Count,
+                CompletedCount = u.Tasks.Count(t => t.IsCompleted)
+            })
+            .ToListAsync();
+    }
 }
