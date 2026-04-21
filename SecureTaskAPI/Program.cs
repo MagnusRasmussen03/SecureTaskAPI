@@ -58,6 +58,16 @@ builder.Services.AddAuthorization();
 
 // Tilføj controllers
 builder.Services.AddControllers();
+// Tillad CORS så vores frontend må tale med API'en
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -75,6 +85,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseAuthentication();
+app.UseCors("AllowFrontend");
 app.UseAuthorization();
 
 // Map controllers automatisk
