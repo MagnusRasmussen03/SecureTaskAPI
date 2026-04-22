@@ -47,10 +47,12 @@ public class AuthController : ControllerBase
             return Unauthorized();
 
         var claims = new[]
-        {
-            new Claim(ClaimTypes.Name, foundUser.Username),
-            new Claim(ClaimTypes.NameIdentifier, foundUser.Id.ToString())
-        };
+{
+    new Claim(ClaimTypes.Name, foundUser.Username),
+    new Claim(ClaimTypes.NameIdentifier, foundUser.Id.ToString()),
+    // Tilføj rollen i tokenet så vi kan tjekke den i endpoints!
+    new Claim(ClaimTypes.Role, foundUser.Role)
+};
 
         var jwtSecret = _configuration["JWT_SECRET"]!;
         var jwtIssuer = _configuration["JWT_ISSUER"]!;
