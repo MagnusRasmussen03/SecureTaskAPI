@@ -18,5 +18,5 @@ public class User
     // én bruger → mange opgaver
     // ─────────────────────────────────────────
     public List<TaskItem> Tasks { get; set; } = new();
-    public string Role { get ; set; } = "User"; // Default rolle er "User"
+    public string Role { get ; set; } = "user"; // Default rolle er "User"
 }
