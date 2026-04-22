@@ -18,6 +18,10 @@ function showTab(tab, event) {
 // ─────────────────────────────────────────
 // LOG IND
 // ─────────────────────────────────────────
+// Hold styr på antal forsøg
+let loginAttempts = 0;
+const MAX_ATTEMPTS = 2;
+
 async function login() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
@@ -28,18 +32,36 @@ async function login() {
         const response = await apiFetch('/auth/login', 'POST', { username, password });
 
         if (response.ok) {
+            // Nulstil forsøg ved success
+            loginAttempts = 0;
             const data = await response.json();
             token = data.token;
             currentRole = getRoleFromToken(token);
 
-            // Vis admin panel eller normal task sektion
             if (currentRole === 'admin') {
                 showAdminSection();
             } else {
                 showTaskSection();
             }
+
+        } else if (response.status === 429) {
+            // Rate limited!
+            showMessage('authMessage', 
+                '🔒 For mange forsøg! Prøv igen om en time.', 'error');
+            document.getElementById('loginBtn').disabled = true;
+
         } else {
-            showMessage('authMessage', 'Forkert brugernavn eller password!', 'error');
+            // Forkert password - tæl forsøget
+            loginAttempts++;
+            const remaining = MAX_ATTEMPTS - loginAttempts;
+
+            if (remaining <= 0) {
+                showMessage('authMessage',
+                    '⚠️ Sidste forsøg brugt! Næste fejl låser kontoen i en time.', 'error');
+            } else {
+                showMessage('authMessage',
+                    `Forkert brugernavn eller password! Du har ${remaining} forsøg tilbage.`, 'error');
+            }
         }
     } catch {
         showMessage('authMessage', 'Kunne ikke forbinde til API!', 'error');

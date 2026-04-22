@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using AspNetCoreRateLimit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,16 @@ builder.Services.AddAuthorization();
 
 // Tilføj controllers
 builder.Services.AddControllers();
+// Rate limiting - maks 2 loginforsøg per time per IP
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(
+builder.Configuration.GetSection("IpRateLimiting"));
+builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+builder.Services.AddInMemoryRateLimiting();
+
 // Tillad CORS så vores frontend må tale med API'en
 builder.Services.AddCors(options =>
 {
@@ -88,6 +99,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthentication();
 app.UseCors("AllowFrontend");
+app.UseIpRateLimiting();
 app.UseAuthorization();
 
 // Map controllers automatisk
