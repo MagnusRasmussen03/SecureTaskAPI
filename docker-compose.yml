@@ -27,6 +27,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_ISSUER: ${JWT_ISSUER}
       JWT_AUDIENCE: ${JWT_AUDIENCE}
+      RATE_LIMIT_LOGIN: ${RATE_LIMIT_LOGIN}
+      RATE_LIMIT_PERIOD: ${RATE_LIMIT_PERIOD}
     ports:
       - "5274:8080"
     depends_on:
