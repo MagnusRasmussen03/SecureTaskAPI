@@ -16,6 +16,54 @@ A task management REST API built with C# and .NET 10, PostgreSQL, Docker, and Gi
 - **ORM:** Entity Framework Core
 - **Containerization:** Docker & Docker Compose
 - **CI/CD:** GitHub Actions
+- **Authentication:** JWT Bearer Tokens
+- **Security:** BCrypt password hashing, IDOR protection, Rate limiting
+
+## Architecture
+
+This project follows a layered architecture pattern:
+
+```
+Controllers → Services → Repositories → Database
+```
+
+- **Controllers** — Handle HTTP requests and responses
+- **Services** — Business logic and validation
+- **Repositories** — Database access via Entity Framework Core
+
+## Design Patterns
+
+- **Repository Pattern** — Abstracts database access behind interfaces
+- **Dependency Injection** — Services and repositories injected via constructor
+- **DTO Pattern** — Separate request models from domain models
+
+## API Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/auth/register` | ❌ | Create a new user |
+| POST | `/auth/login` | ❌ | Login and receive JWT token |
+| GET | `/tasks` | ✅ | Get all tasks for logged in user |
+| GET | `/tasks/{id}` | ✅ | Get a specific task |
+| POST | `/tasks` | ✅ | Create a new task |
+| PUT | `/tasks/{id}` | ✅ | Update a task |
+| DELETE | `/tasks/{id}` | ✅ | Delete a task |
+| GET | `/tasks/statistics` | ✅ | Get task statistics |
+| GET | `/tasks/pending` | ✅ | Get pending tasks sorted by title |
+| GET | `/admin/users` | 👑 | Get all users with stats |
+| GET | `/admin/users/{id}` | 👑 | Get user with tasks |
+| DELETE | `/admin/users/{id}` | 👑 | Delete a user |
+
+> ✅ = Requires JWT token — 👑 = Requires admin role
+
+## Security Features
+
+- **JWT Authentication** — Stateless token-based authentication
+- **BCrypt Hashing** — Passwords are never stored in plain text
+- **IDOR Protection** — Users can only access their own tasks
+- **Rate Limiting** — Maximum 2 login attempts per hour per IP
+- **Role-based Authorization** — Admin and user roles
+- **Environment Variables** — No secrets in source code
 
 ## Getting Started
 
